@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Court Explorer — NyayClock</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<nav class="nav">
+  <a class="brand" href="index.html">⚖️ Nyay<span>Clock</span></a>
+  <div class="nav-links">
+    <a href="index.html" data-i18n="nav.home">Home</a>
+    <a href="predictor.html" data-i18n="nav.predictor">Timeline Predictor</a>
+    <a href="courts.html" data-i18n="nav.courts">Court Explorer</a>
+    <a href="forums.html" data-i18n="nav.forums">Forum Comparison</a>
+    <a href="tracker.html" data-i18n="nav.tracker">Case Tracker Guide</a>
+    <a href="rights.html" data-i18n="nav.rights">Know Your Rights</a>
+    <a href="aid.html" data-i18n="nav.aid">Free Legal Aid & Schemes</a>
+    <a href="about.html" data-i18n="nav.about">Data & Method</a>
+  </div>
+</nav>
+
+<div class="page">
+  <h1>Court Explorer — How Bad Is MY District Court?</h1>
+  <p class="lead">Before you file, know what you're walking into. Search your district: pending caseload, judges available, clearance rate, and what it means for your case.</p>
+
+  <div class="panel-box">
+    <h2>🔍 Find Your District Court</h2>
+    <input type="text" id="districtSearch" placeholder='Type your district — e.g. "Pune", "Patna", "Chennai"…' style="font-size:1rem;padding:.9rem 1.2rem">
+    <div id="searchResults" style="margin-top:.8rem"></div>
+  </div>
+
+  <div id="scorecard" style="display:none"></div>
+
+  <div class="panel-box" style="margin-top:1.4rem">
+    <h2>📊 All Districts Ranked <span style="font-size:.7rem;color:var(--muted);text-transform:none;letter-spacing:0">(by cases per judge — the real workload measure)</span></h2>
+    <div style="display:flex;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap">
+      <button class="go" style="width:auto;margin:0;padding:.5rem 1.2rem;font-size:.8rem" onclick="sortDistricts('load')">Sort: Workload per Judge</button>
+      <button class="go" style="width:auto;margin:0;padding:.5rem 1.2rem;font-size:.8rem;background:var(--panel2);color:var(--text)" onclick="sortDistricts('pending')">Sort: Total Pending</button>
+      <button class="go" style="width:auto;margin:0;padding:.5rem 1.2rem;font-size:.8rem;background:var(--panel2);color:var(--text)" onclick="sortDistricts('clearance')">Sort: Clearance Rate</button>
+    </div>
+    <div class="table-wrap"><table class="data" id="districtTable"></table></div>
+  </div>
+
+  <div class="panel-box">
+    <h2>📈 Clearance Rate Visualized (worst first)</h2>
+    <p style="color:var(--muted);font-size:.82rem;margin-bottom:1rem">Clearance rate = cases disposed ÷ cases filed. Above 100% means the backlog is shrinking. Below means it's growing.</p>
+    <div id="clearanceChart"></div>
+  </div>
+
+  <div class="note-box">
+    <b>Why this matters:</b> Two identical cases can take twice as long in a district with 3,000 cases/judge vs one with 1,500. Filing strategy (which jurisdiction, whether to seek transfer, whether to settle early) should account for court conditions. Data basis: NJDG district drill-down magnitudes + India Justice Report 2025 judge-strength analysis.
+  </div>
+</div>
+
+<footer>
+  <div>NyayClock — built on public data from NJDG, data.gov.in & Department of Justice.</div>
+  <div class="disclaimer">Statistical estimates, not legal advice.</div>
+</footer>
+
+<script src="data/courts.js"></script>
+<script src="data/districts.js"></script>
+<script src="assets/live.js"></script>
+<script src="assets/i18n.js"></script>
+<script src="assets/app.js"></script>
+<script>
+const searchInput = document.getElementById('districtSearch');
+const resultsDiv = document.getElementById('searchResults');
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim().toLowerCase();
+  if(q.length < 2){ resultsDiv.innerHTML = ''; return; }
+  const matches = DISTRICT_DATA.filter(d => d[0].toLowerCase().includes(q) || d[1].toLowerCase().includes(q)).slice(0,6);
+  resultsDiv.innerHTML = matches.length
+    ? matches.map(d=>`<div class="alt-item" style="cursor:pointer" onclick="showScorecard(${DISTRICT_DATA.indexOf(d)})"><span>📍 ${d[0]}, ${d[1]}</span><b>${fmtCr(d[2])} pending →</b></div>`).join('')
+    : noMatchCard(q);
+});
+
+// Graceful fallback: estimate from state-level data when district isn't in our dataset
+function noMatchCard(q){
+  // find state-level pendency from STATE_PENDENCY (data/courts.js) via fuzzy state name
+  const stateGuess = STATE_PENDENCY.find(s => q.includes(s[0].toLowerCase().split(' ')[0]));
+  if(stateGuess){
+    const avgPerDistrict = Math.round(stateGuess[1] / 70); // rough districts-per-state average
+    return `<div class="alt-item" style="border-color:rgba(245,158,11,.4)">
+      <span><b>"${searchInput.value}" isn't in our detailed dataset yet</b> — we cover major districts first.<br>
+      <small style="color:var(--muted)">State context for ${stateGuess[0]}: <b style="color:var(--text)">${fmtCr(stateGuess[1])}</b> pending cases across its district courts — among the ${STATE_PENDENCY.findIndex(s=>s[0]===stateGuess[0])+1} highest loads nationally.</small></span>
+      <a href="https://njdg.ecourts.gov.in/njdg_v3/?p=home/index" target="_blank" rel="noopener" style="color:var(--accent);white-space:nowrap">Check NJDG directly ↗</a></div>`;
+  }
+  return `<div class="alt-item"><span>No match in our dataset yet. Try a major district — or check NJDG directly for smaller courts.</span>
+    <a href="https://njdg.ecourts.gov.in/njdg_v3/?p=home/index" target="_blank" rel="noopener" style="color:var(--accent);white-space:nowrap">Open NJDG ↗</a></div>`;
+}
+
+function showScorecard(idx){
+  const d = DISTRICT_DATA[idx];
+  const [name, state, pending, judges, clearance] = d;
+  const perJudge = Math.round(pending / judges);
+  const cv = clearanceVerdict(clearance);
+  const congestionFactor = Math.min(2.2, perJudge / 1500);
+  const estWait = (2 * congestionFactor).toFixed(1);
+
+  const sc = document.getElementById('scorecard');
+  sc.style.display = 'block';
+  sc.innerHTML = `
+  <div class="panel-box">
+    <h2>🏛️ ${name}, ${state} — Court Scorecard</h2>
+    <div class="result-big"><b style="color:${cv.color}">${perJudge.toLocaleString('en-IN')}</b><span>PENDING CASES PER JUDGE — THE REAL WORKLOAD NUMBER</span></div>
+    <div class="kv"><span>Total pending cases</span><b>${pending.toLocaleString('en-IN')}</b></div>
+    <div class="kv"><span>Judges working (approx)</span><b>${judges}</b></div>
+    <div class="kv"><span>Clearance rate</span><b style="color:${cv.color}">${clearance}% — ${cv.label}</b></div>
+    <div class="kv"><span>Estimated typical wait contribution</span><b>+${estWait} years on top of case complexity</b></div>
+    <div class="note-box">
+      <b>What this means for you:</b>
+      ${perJudge > 2500 ? 'This is one of the most overloaded courts. Strongly consider: settlement-first strategies, Lok Adalat routes, or commercial/consumer forums where eligible. Budget for the P75 timeline, not the median.' :
+        perJudge > 1800 ? 'Heavily loaded court. Expect delays beyond national medians. Explore faster forums first and use interim applications aggressively.' :
+        perJudge > 1200 ? 'Moderately loaded. National medians apply roughly here. Standard preparation applies.' :
+        'Relatively better-off court. Timelines may beat national medians — filing here (if jurisdiction allows) is an advantage.'}
+      ${clearance < 90 ? ' ⚠️ Clearance below 100% means the queue grows every month — waiting to file does not help.' : ''}
+    </div>
+  </div>`;
+  sc.scrollIntoView({behavior:'smooth'});
+}
+
+let sortMode = 'load';
+function sortDistricts(mode){
+  sortMode = mode;
+  renderTable();
+}
+function renderTable(){
+  const rows = [...DISTRICT_DATA];
+  if(sortMode === 'load') rows.sort((a,b)=>(b[2]/b[3])-(a[2]/a[3]));
+  else if(sortMode === 'pending') rows.sort((a,b)=>b[2]-a[2]);
+  else rows.sort((a,b)=>a[4]-b[4]);
+  const maxLoad = Math.max(...rows.map(r=>r[2]/r[3]));
+  document.getElementById('districtTable').innerHTML =
+    `<tr><th>#</th><th>District</th><th>State</th><th>Pending</th><th class="bar-cell">Cases/Judge</th><th>Clearance</th></tr>` +
+    rows.map((r,i)=>{
+      const load = Math.round(r[2]/r[3]);
+      const cv = clearanceVerdict(r[4]);
+      return `<tr style="cursor:pointer" onclick="showScorecard(${DISTRICT_DATA.indexOf(r)})">
+        <td>${i+1}</td><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${fmtCr(r[2])}</td>
+        <td class="bar-cell">${load}<div class="mini-track" style="margin-top:.3rem"><div class="mini-fill" data-w="${load/maxLoad*100}" style="background:${cv.color}"></div></div></td>
+        <td style="color:${cv.color};font-weight:700">${r[4]}%</td></tr>`;
+    }).join('');
+  setTimeout(()=>document.querySelectorAll('#districtTable .mini-fill').forEach(f=>f.style.width=f.dataset.w+'%'),80);
+}
+renderTable();
+
+const chartRows = [...DISTRICT_DATA].sort((a,b)=>a[4]-b[4]).slice(0,14);
+document.getElementById('clearanceChart').innerHTML = chartRows.map(r=>{
+  const w = Math.min(100, r[4]);
+  const cv = clearanceVerdict(r[4]);
+  return `<div class="range-row" style="padding:.45rem 0">
+    <span style="width:140px;font-weight:600;color:var(--text)">${r[0]}</span>
+    <div class="range-track"><div class="range-fill" data-w="${w}" style="background:${cv.color}"></div></div>
+    <span style="color:${cv.color};font-weight:700">${r[4]}%</span></div>`;
+}).join('');
+setTimeout(()=>document.querySelectorAll('#clearanceChart .range-fill').forEach(f=>f.style.width=f.dataset.w+'%'),150);
+</script>
+</body>
+</html>

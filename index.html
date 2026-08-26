@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NyayClock — Know Your Case Timeline Before You File</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<nav class="nav">
+  <a class="brand" href="index.html">⚖️ Nyay<span>Clock</span></a>
+  <div class="nav-links">
+    <a href="index.html" class="active">Home</a>
+    <a href="predictor.html">Timeline Predictor</a>
+    <a href="courts.html">Court Explorer</a>
+    <a href="forums.html">Forum Comparison</a>
+    <a href="tracker.html">Case Tracker Guide</a>
+    <a href="rights.html">Know Your Rights</a>
+    <a href="aid.html" data-i18n="nav.aid">Free Legal Aid & Schemes</a>
+    <a href="about.html">Data & Method</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-inner">
+    <h1><span data-i18n="hero.h1a">Before you file,</span><br><em data-i18n="hero.h1b">know the wait.</em></h1>
+    <p class="tagline"><span data-i18n="hero.tagPre">India has</span> <b id="livePendency">…</b><span data-i18n="hero.tagPost"> pending cases. NyayClock turns the National Judicial Data Grid into honest answers: how long will YOUR case actually take?</span></p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="predictor.html" data-i18n="hero.cta1">Predict my case timeline →</a>
+      <a class="btn btn-ghost" href="courts.html" data-i18n="hero.cta2">Explore your district court</a>
+    </div>
+    <div class="trust-line" data-i18n="hero.trust">100% free · No sign-up · Built entirely on public government data (NJDG · data.gov.in · DoJ)</div>
+  </div>
+</section>
+
+<section class="stats-band">
+  <div class="stat"><b id="sTotal">…</b><span data-i18n="stat.total">cases pending in district courts</span></div>
+  <div class="stat"><b id="sOver1">—</b><span data-i18n="stat.over1">have been pending over 1 year</span></div>
+  <div class="stat"><b id="sInst">—</b><span data-i18n="stat.inst">new cases filed last month</span></div>
+  <div class="stat"><b id="sDisp">—</b><span data-i18n="stat.disp">cases disposed last month</span></div>
+</section>
+<div style="text-align:center;padding:.7rem;background:var(--panel);border-bottom:1px solid var(--border)" id="freshnessBar"></div>
+
+<section class="viz-section">
+  <h2 class="viz-title">📊 India's Justice Backlog — Visualized</h2>
+  <p class="viz-sub">Live NJDG counters merged with NCRB, India Justice Report & Department of Justice data. Exact figures, not rounded slogans.</p>
+  <div class="viz-grid">
+    <div class="viz-card">
+      <h3>What kind of cases are pending?</h3>
+      <div id="chartDonut" style="display:flex;justify-content:center"></div>
+      <div class="viz-legend" id="donutLegend"></div>
+      <div class="viz-note">Criminal cases outnumber civil ~3.5:1 — most Indians fighting the system are in criminal proceedings.</div>
+    </div>
+    <div class="viz-card">
+      <h3>How old are the pending cases?</h3>
+      <div id="chartAge"></div>
+      <div class="viz-legend" id="ageLegend"></div>
+      <div class="viz-note"><b id="decadeLine">—</b> A case filed today competes with lakhs of decade-old ones for the same judge hours.</div>
+    </div>
+    <div class="viz-card">
+      <h3>Filing vs disposal — is the backlog growing?</h3>
+      <div id="chartFlow"></div>
+      <div class="viz-legend" id="flowLegend"></div>
+      <div class="viz-note"><b id="gapLine">—</b> At this rate the backlog grows every single month. Clearance rate needs to exceed 100% to reverse it.</div>
+    </div>
+    <div class="viz-card">
+      <h3>The human cost — undertrials in prison</h3>
+      <div id="chartPrison"></div>
+      <div class="viz-legend" id="prisonLegend"></div>
+      <div class="viz-note"><b>73.5%</b> of India's 5.30 lakh prisoners are undertrials — legally innocent, awaiting trial. Source: NCRB Prison Statistics 2023.</div>
+    </div>
+    <div class="viz-card">
+      <h3>Worst states by district-court pendency</h3>
+      <div id="chartStates"></div>
+      <div class="viz-note">Source: data.gov.in (Dec 2023 snapshot). UP alone holds more pending cases than many countries' entire judiciary.</div>
+    </div>
+    <div class="viz-card">
+      <h3>What a dispute actually costs</h3>
+      <div id="chartCost"></div>
+      <div class="viz-note">DAKSH access-to-justice research: average dispute takes <b>1,446 days (~4 years)</b> and costs <b>31% of claim value</b> in legal + court fees — among the world's highest. This is why forum choice and settlement strategy matter more than most people realize.</div>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="feature-card">
+    <div class="f-icon">⏳</div>
+    <h3>Timeline Predictor</h3>
+    <p>Pick your case type and court — get median, best-case and worst-case timelines modeled from NJDG case-age distributions.</p>
+    <a href="predictor.html" class="card-link">Try it →</a>
+  </div>
+  <div class="feature-card">
+    <div class="f-icon">🏛️</div>
+    <h3>Court Explorer</h3>
+    <p>How backed up is your state's district judiciary? Real pendency numbers for every state and major High Court.</p>
+    <a href="courts.html" class="card-link">Explore →</a>
+  </div>
+  <div class="feature-card">
+    <div class="f-icon">🔀</div>
+    <h3>Forum Comparison</h3>
+    <p>The same dispute can take 7 months or 7 years depending on where you file. Compare Lok Adalat, consumer commissions, commercial courts and civil courts.</p>
+    <a href="forums.html" class="card-link">Compare →</a>
+  </div>
+  <div class="feature-card">
+    <div class="f-icon">📋</div>
+    <h3>Case Tracker Guide</h3>
+    <p>Have a CNR number? Learn how to track your case on eCourts, decode cryptic statuses, and know when to escalate.</p>
+    <a href="tracker.html" class="card-link">Learn →</a>
+  </div>
+  <div class="feature-card">
+    <div class="f-icon">🛡️</div>
+    <h3>Know Your Rights</h3>
+    <p>Speedy trial is a fundamental right (Art. 21). Delay compensation, mandatory timelines, and how to invoke them.</p>
+    <a href="rights.html" class="card-link">Read →</a>
+  </div>
+  <div class="feature-card">
+    <div class="f-icon">📊</div>
+    <h3>Open Data & Method</h3>
+    <p>Every number on this site traces to a public source. See exactly what we use, how we model, and what we can't know.</p>
+    <a href="about.html" class="card-link">Verify us →</a>
+  </div>
+</section>
+
+<footer>
+  <div>NyayClock — built on public data from NJDG (njdg.ecourts.gov.in), data.gov.in, Department of Justice & NCRB.</div>
+  <div class="disclaimer">NyayClock provides statistical estimates, not legal advice. Timelines are medians from historical disposal patterns — individual cases vary.</div>
+</footer>
+
+<script src="data/courts.js"></script>
+<script src="data/districts.js"></script>
+<script src="assets/live.js"></script>
+<script src="assets/charts.js"></script>
+<script src="assets/i18n.js"></script>
+<script src="assets/app.js"></script>
+<script>
+NyayData.injectStyles();
+async function loadLive(){
+  const data = await NyayData.fetchLiveNJDG();
+  document.getElementById('livePendency').textContent = data.totalPending.toLocaleString('en-IN');
+  document.getElementById('sTotal').textContent = fmtCr(data.totalPending);
+  document.getElementById('sOver1').textContent = data.pctOverOneYear + '%';
+  document.getElementById('sInst').textContent = fmtLakh(data.institutedLastMonth.total);
+  document.getElementById('sDisp').textContent = fmtLakh(data.disposedLastMonth.total);
+  const tag = document.createElement('div');
+  tag.style.marginTop = '.6rem';
+  tag.innerHTML = NyayData.badge(data) +
+    (data.live ? '' : ' <span class="data-age-note">Government site temporarily unreachable — showing verified snapshot; auto-refreshes when NJDG is back.</span>');
+  document.querySelector('.trust-line').prepend(tag);
+  document.getElementById('freshnessBar').innerHTML =
+    (data.live
+      ? `<span class="fresh-badge live">● LIVE</span> <span style="font-size:.75rem;color:var(--muted)">Pending counts fetched directly from NJDG just now. Instituted/disposed monthly figures: NJDG dashboard crawl of 11 Aug 2025.</span>`
+      : data.viaScraper
+      ? `<span class="fresh-badge ${Math.floor((Date.now()-new Date(data.fetchedAt).getTime())/86400000) <= 2 ? 'live' : 'cached'}">● AUTO-UPDATED</span> <span style="font-size:.75rem;color:var(--muted)">Numbers auto-refresh daily from NJDG via our update pipeline. Last fetch: ${data.capturedAt}. Direct NJDG counters shown when the government site permits browser access.</span>`
+      : `<span class="fresh-badge cached">● SNAPSHOT · ${Math.floor((Date.now()-new Date(data.capturedAt).getTime())/86400000)} days old</span> <span style="font-size:.75rem;color:var(--muted)">NJDG unreachable right now — showing verified snapshot from ${data.capturedAt}. Auto-refreshes on next visit.</span>`);
+
+  renderCharts(data);
+}
+
+function renderCharts(data){
+  // 1. Civil vs Criminal donut (exact counts)
+  const civil = data.civilPending || 11275720;
+  const criminal = data.criminalPending || 39798693;
+  Charts.donut(document.getElementById('chartDonut'), [
+    {label:'Criminal', value:criminal, color:'#ef4444'},
+    {label:'Civil', value:civil, color:'#60a5fa'},
+  ], {center: fmtCr(criminal+civil), centerSub: 'total pending', centerSize: 17});
+  document.getElementById('donutLegend').innerHTML =
+    `<span style="color:#ef4444">■</span> Criminal: <b>${criminal.toLocaleString('en-IN')}</b> (${(criminal/(civil+criminal)*100).toFixed(1)}%) &nbsp;
+     <span style="color:#60a5fa">■</span> Civil: <b>${civil.toLocaleString('en-IN')}</b> (${(civil/(civil+criminal)*100).toFixed(1)}%)`;
+
+  // 2. Age distribution with EXACT case counts
+  const total = data.totalPending;
+  const agePcts = [[38,'Less than 1 year','#10b981'],[23,'1–3 years','#a3e635'],[13,'3–5 years','#f59e0b'],[16,'5–10 years','#fb923c'],[9,'Above 10 years','#ef4444']];
+  Charts.hbars(document.getElementById('chartAge'),
+    agePcts.map(([pct,label,color])=>({label, value:pct, max:40, color, display:`${pct}% · ${fmtCr(Math.round(total*pct/100))}`})),
+    {labelW:120});
+  const decadeCount = Math.round(total*9/100);
+  document.getElementById('decadeLine').textContent = `${decadeCount.toLocaleString('en-IN')} cases (~${(decadeCount/1e5).toFixed(0)} lakh) have been pending for OVER TEN YEARS.`;
+  // 3. Filing vs disposal gap
+  const inst = data.institutedLastMonth.total;   // 29.2 lakh
+  const disp = data.disposedLastMonth.total;     // 23.3 lakh
+  Charts.columns(document.getElementById('chartFlow'), [
+    {label:'Filed last month', values:[{v:inst, color:'#60a5fa'}]},
+    {label:'Disposed last month', values:[{v:disp, color:'#10b981'}]},
+    {label:'Net backlog growth', values:[{v:inst-disp, color:'#ef4444'}]},
+  ], {height:200});
+  document.getElementById('flowLegend').innerHTML =
+    `Filed: <b>${fmtLakh(inst)}</b> · Disposed: <b>${fmtLakh(disp)}</b> · Gap: <b style="color:#ef4444">+${fmtLakh(inst-disp)}/month</b>`;
+  document.getElementById('gapLine').textContent = `The backlog grows by roughly ${(inst-disp).toLocaleString('en-IN')} cases every month (${(((inst-disp)/disp)*100).toFixed(0)}% more coming in than going out).`;
+
+  // 4. Prison undertrials (NCRB 2023)
+  Charts.donut(document.getElementById('chartPrison'), [
+    {label:'Undertrials', value:389000, color:'#ef4444'},
+    {label:'Convicted', value:109000, color:'#60a5fa'},
+    {label:'Detainees/Others', value:32000, color:'#8b94a8'},
+  ], {center:'5.30L', centerSub:'inmates', centerSize:20});
+  document.getElementById('prisonLegend').innerHTML =
+    `<span style="color:#ef4444">■</span> Undertrials: <b>3,89,000 (73.5%)</b> &nbsp; <span style="color:#60a5fa">■</span> Convicted: <b>1,09,000</b><br><small style="color:var(--muted)">~80% of undertrials are first-time offenders; occupancy 120.8%</small>`;
+
+  // 5. Worst states
+  const worst = [...STATE_PENDENCY].sort((a,b)=>b[1]-a[1]).slice(0,8);
+  Charts.hbars(document.getElementById('chartStates'),
+    worst.map(s=>({label:s[0], value:s[1], display:fmtCr(s[1])})), {labelW:110});
+
+  // 6. Cost of dispute (DAKSH research)
+  Charts.columns(document.getElementById('chartCost'), [
+    {label:'Avg days to resolve', values:[{v:1446, color:'#f59e0b'}]},
+    {label:'Cost as % of claim', values:[{v:31, color:'#ef4444'}]},
+  ], {height:190});
+}
+loadLive();
+</script>
+</body>
+</html>

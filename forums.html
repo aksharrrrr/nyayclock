@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forum Comparison — NyayClock</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<nav class="nav">
+  <a class="brand" href="index.html">⚖️ Nyay<span>Clock</span></a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="predictor.html">Timeline Predictor</a>
+    <a href="courts.html">Court Explorer</a>
+    <a href="forums.html">Forum Comparison</a>
+    <a href="tracker.html">Case Tracker Guide</a>
+    <a href="rights.html">Know Your Rights</a>
+    <a href="aid.html" data-i18n="nav.aid">Free Legal Aid & Schemes</a>
+    <a href="about.html">Data & Method</a>
+  </div>
+</nav>
+
+<div class="page">
+  <h1>Same Dispute. Different Forum. Different Life.</h1>
+  <p class="lead">Where you file matters as much as whether you file. Median timelines across India's dispute-resolution forums.</p>
+
+  <div class="panel-box">
+    <h2>Median Disposal Time by Forum</h2>
+    <div id="forumList"></div>
+    <div class="note-box"><b>The strategic insight:</b> A cheque-bounce complaint filed in the regular criminal track takes ~3.8 years median. The same dispute settled through Lok Adalat or mediation takes months. Before filing anywhere, ask: "Is there a faster forum I qualify for?"</div>
+  </div>
+
+  <div class="panel-box">
+    <h2>Which Forum Fits My Dispute?</h2>
+    <label>WHAT KIND OF DISPUTE DO YOU HAVE?</label>
+    <select id="dispute">
+      <option>Cheque bounced (payment dishonored)</option>
+      <option>Someone owes me money (loan/invoice)</option>
+      <option>Defective product or bad service</option>
+      <option>Matrimonial / family dispute</option>
+      <option>Property disagreement</option>
+      <option>Road accident injury claim</option>
+      <option>Online fraud / cyber scam</option>
+    </select>
+    <button class="go" onclick="recommend()">SHOW MY FORUM OPTIONS →</button>
+    <div id="recs" style="margin-top:1.2rem"></div>
+  </div>
+</div>
+
+<footer>
+  <div>NyayClock — built on public data from NJDG, data.gov.in & Department of Justice.</div>
+  <div class="disclaimer">Statistical estimates, not legal advice.</div>
+</footer>
+
+<script src="data/courts.js"></script>
+<script src="assets/i18n.js"></script>
+<script src="assets/app.js"></script>
+<script>
+const maxT = 6;
+document.getElementById('forumList').innerHTML = FORUM_COMPARISON.map((f,i)=>`
+  <div class="range-row" style="padding:.7rem 0">
+    <span style="font-weight:700;color:var(--text)">${f.forum}</span>
+    <div class="range-track"><div class="range-fill" data-w="${Math.min(100,parseFloat(f.time)/maxT*100)}" style="background:${f.color}"></div></div>
+    <span>${f.time}</span>
+  </div>`).join('');
+
+const RECS = {
+'Cheque bounced (payment dishonored)':[
+['1️⃣ Demand notice u/s 138 (30 days)','Free · often settles','Send via lawyer/registered post — mandatory before filing'],
+['2️⃣ Mediation if notice fails','3–9 months','Court-annexed or private'],
+['3️⃣ 138 NI Act complaint (Magistrate)','~3.8 yrs median','The formal route — use our predictor for your district'],
+['4️⃣ Lok Adalat (any stage)','3–7 months','Even after filing, cases get referred here']],
+'Someone owes me money (loan/invoice)':[
+['1️⃣ Written demand + payment plan offer','Free · 15–30 days','Document everything in writing'],
+['2️⃣ Commercial Court (if ≥₹3L & business dispute)','~40% faster civil track','Check eligibility under Commercial Courts Act 2015'],
+['3️⃣ Arbitration (if agreement has clause)','12–18 months','Faster than civil suit, binding'],
+['4️⃣ Civil recovery suit','~5.6 yrs median','Last resort — see predictor']],
+'Defective product or bad service':[
+['1️⃣ Written complaint to seller/provider','Free · 15–30 days','CPA 2019 requires this first step'],
+['2️⃣ National Consumer Helpline (1915 / INGRAM)','1–3 months','Free mediation-style resolution'],
+['3️⃣ District Consumer Commission','~1.7 yrs median','Fastest formal forum; fees are tiny (₹100–₹750)'],
+['4️⃣ Civil court','not recommended','Slower and costlier than consumer route']],
+'Matrimonial / family dispute':[
+['1️⃣ Family counselling / mediation','3–8 months','Family Courts Act mandates counseling first'],
+['2️⃣ Mutual consent divorce (13B)','6–18 months','If both agree — dramatically faster'],
+['3️⃣ Contested proceedings','~4.4 yrs median','Use predictor for your district']],
+'Property disagreement':[
+['1️⃣ Title verification + negotiation','months','Often reveals the dispute is documentable and settleable'],
+['2️⃣ Mediation with family elders/counselor','variable','Partition deeds avoid litigation entirely'],
+['3️⃣ Civil title/partition suit','~8.9 yrs median','The longest category in Indian courts — plan accordingly']],
+'Road accident injury claim':[
+['1️⃣ Claim application to MACT','~2.9 yrs median','No court fee; insurer is party by law'],
+['2️⃣ MACT Lok Adalat reference','6–12 months','Very high settlement rate'],
+['3️⃣ Direct insurer settlement','3–6 months','For clear-liability cases']],
+'Online fraud / cyber scam':[
+['1️⃣ Cybercrime.gov.in complaint + 1930 helpline','Hours–days','Freeze-window can recover funds if fast'],
+['2️⃣ Bank ombudsman (if bank negligence)','30–60 days','RBI integrated ombudsman scheme'],
+['3️⃣ Consumer commission (deficiency of service)','~1.7 yrs median','Banks/platforms are service providers under CPA'],
+['4️⃣ Police FIR → criminal trial','years','For prosecution of the fraudster specifically']],
+};
+function recommend(){
+  const d = document.getElementById('dispute').value;
+  document.getElementById('recs').innerHTML = `<div class="note-box" style="margin-top:0;margin-bottom:.8rem"><b>Recommended path for:</b> ${d}</div>` +
+    RECS[d].map(r=>`<div class="alt-item"><span><b>${r[0]}</b><br><span style="color:var(--muted);font-size:.82rem">${r[2]}</span></span><b style="white-space:nowrap">${r[1]}</b></div>`).join('');
+}
+setTimeout(()=>document.querySelectorAll('.range-fill').forEach(f=>f.style.width=f.dataset.w+'%'),120);
+</script>
+</body>
+</html>

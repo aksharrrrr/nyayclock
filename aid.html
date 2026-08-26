@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Legal Aid & Government Help — NyayClock</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<nav class="nav">
+  <a class="brand" href="index.html">⚖️ Nyay<span>Clock</span></a>
+  <div class="nav-links">
+    <a href="index.html" data-i18n="nav.home">Home</a>
+    <a href="predictor.html" data-i18n="nav.predictor">Timeline Predictor</a>
+    <a href="courts.html" data-i18n="nav.courts">Court Explorer</a>
+    <a href="forums.html" data-i18n="nav.forums">Forum Comparison</a>
+    <a href="tracker.html" data-i18n="nav.tracker">Case Tracker Guide</a>
+    <a href="aid.html" data-i18n="nav.aid">Free Legal Aid & Schemes</a>
+    <a href="rights.html" data-i18n="nav.rights">Know Your Rights</a>
+    <a href="about.html" data-i18n="nav.about">Data & Method</a>
+  </div>
+</nav>
+
+<div class="page">
+  <h1>Free Legal Aid & Government Money You May Be Owed</h1>
+  <p class="lead">Most Indians who qualify for a free government lawyer don't know it. And crores in victim compensation goes unclaimed every year. Check what applies to you — takes 2 minutes.</p>
+
+  <div class="panel-box">
+    <h2>🆓 Am I Eligible For A Free Government Lawyer?</h2>
+    <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem">Under Section 12 of the Legal Services Authorities Act, 1987. Answer honestly — this is informational, the DLSA makes the final call.</p>
+    <label>ARE YOU ANY OF THESE? (tick all that apply)</label>
+    <div id="autoCats" style="display:flex;flex-direction:column;gap:.45rem;margin-bottom:1rem"></div>
+    <label>IF NONE ABOVE: YOUR FAMILY'S ANNUAL INCOME?</label>
+    <select id="incomeSel">
+      <option value="">— select —</option>
+      <option>Below ₹1 lakh</option>
+      <option>₹1–3 lakh</option>
+      <option>Above ₹3 lakh</option>
+    </select>
+    <button class="go" onclick="checkAid()">CHECK MY ELIGIBILITY →</button>
+    <div id="aidResult"></div>
+  </div>
+
+  <div class="panel-box">
+    <h2>💰 Victim Compensation — Money The Government Owes Victims</h2>
+    <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem">Paid even if the accused is never caught (Supreme Court, Nipun Saxena v. UOI). Applied through the DLSA — the same office that gives free lawyers.</p>
+    <div class="table-wrap"><table class="data" id="vcTable"></table></div>
+  </div>
+
+  <div class="panel-box">
+    <h2>📞 Helplines — Save These Numbers</h2>
+    <div id="helplines"></div>
+  </div>
+
+  <div class="panel-box">
+    <h2>🏛️ Support Schemes That Help During Disputes</h2>
+    <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem">Schemes that provide money, shelter, insurance or healthcare when you're fighting a case.</p>
+    <div id="schemes"></div>
+  </div>
+
+  <div class="note-box">
+    <b>How to actually apply for free legal aid:</b> Walk into your District Legal Services Authority (DLSA) — it's in every district court complex — OR apply online at NALSA's LSAMS portal (no login needed, available in 10 languages), OR just call <b>15100</b>. Bring photo ID and a brief written summary of your problem. Women, children, SC/ST, disabled persons and prisoners need NO income proof.
+  </div>
+</div>
+
+<footer>
+  <div>NyayClock — built on public data from NALSA, Legal Services Authorities Act 1987, MHA CVCF guidelines, SC/ST PoA Rules 2016, MoRTH schemes.</div>
+  <div class="disclaimer">Informational only — the competent authority decides eligibility.</div>
+</footer>
+
+<script src="data/courts.js"></script>
+<script src="data/aid.js"></script>
+<script src="assets/live.js"></script>
+<script src="assets/i18n.js"></script>
+<script src="assets/app.js"></script>
+<script>
+// Eligibility checkboxes
+const autoDiv = document.getElementById('autoCats');
+LEGAL_AID.eligibility.automatic.forEach((c,i)=>{
+  autoDiv.innerHTML += `<label style="display:flex;gap:.6rem;align-items:center;font-weight:400;color:var(--text);font-size:.9rem;margin:0">
+    <input type="checkbox" id="cat${i}" style="width:auto"> ${c.cat}</label>`;
+});
+
+function checkAid(){
+  const checked = LEGAL_AID.eligibility.automatic.filter((c,i)=>document.getElementById('cat'+i).checked);
+  const income = document.getElementById('incomeSel').value;
+  const res = document.getElementById('aidResult');
+  let html = '';
+  if(checked.length){
+    html += `<div class="result-big"><b style="color:var(--good)">✓ LIKELY ELIGIBLE</b><span>Based on your selection(s)</span></div>`;
+    html += `<div class="kv"><span>You qualify automatically as:</span><b>${checked.map(c=>c.cat).join(', ')}</b></div>`;
+    html += `<div class="kv"><span>Income proof needed?</span><b>No — these categories skip the income test entirely</b></div>`;
+  } else if(income === 'Below ₹1 lakh' || income === '₹1–3 lakh'){
+    html += `<div class="result-big"><b style="color:var(--accent)">POSSIBLY ELIGIBLE</b><span>Depends on your state's income ceiling</span></div>`;
+    html += `<div class="kv"><span>Your income bracket</span><b>${income}</b></div>`;
+    html += `<div class="kv"><span>What to do</span><b>Apply anyway — most state ceilings are generous, and the DLSA decides finally</b></div>`;
+  } else if(income){
+    html += `<div class="result-big"><b style="color:#f59e0b">MAY NOT QUALIFY VIA INCOME</b><span>But other routes exist</span></div>`;
+    html += `<div class="kv"><span>Alternatives</span><b>Lok Adalat (free), consumer commissions (tiny fees), Tele-Law advice (free via 14454), Nyaya Bandhu pro-bono lawyers</b></div>`;
+  } else {
+    html = `<div class="alt-item" style="color:var(--muted)">Select at least one category or an income bracket.</div>`;
+  }
+  if(html && !html.includes('Select at least')){
+    html += `<div class="note-box" style="margin-top:1rem"><b>Apply now:</b>
+      ① Call <b>15100</b> (NALSA helpline), or
+      ② Apply online at <a href="${LEGAL_AID.applyOnline.url}" target="_blank" rel="noopener" style="color:var(--accent)">NALSA LSAMS portal ↗</a> (no login, 10 languages), or
+      ③ Walk into your district's DLSA office (in the district court complex).
+      Documents: ${LEGAL_AID.applyOnline.documents.join(', ')}.</div>`;
+  }
+  res.innerHTML = html;
+}
+
+// Victim compensation table
+document.getElementById('vcTable').innerHTML = '<tr><th>Scheme</th><th>Amount</th><th>Where to Claim</th><th>When</th></tr>' +
+  VICTIM_COMPENSATION.map(v=>`<tr><td><b>${v.scheme}</b><br><small style="color:var(--muted)">${v.law}</small></td><td style="color:var(--good);font-weight:700">${v.amount}</td><td>${v.where}</td><td>${v.when}</td></tr>`).join('');
+
+// Helplines
+document.getElementById('helplines').innerHTML = LEGAL_AID.helplines.map(h=>`
+  <div class="alt-item"><span>${h.name} <small style="color:var(--muted)">· ${h.note}</small></span><b style="font-size:1.15rem;color:var(--accent)">${h.number}</b></div>`).join('');
+
+// Schemes
+document.getElementById('schemes').innerHTML = SUPPORT_SCHEMES.map(s=>`
+  <div class="right-card"><h3>${s.name}</h3><p>${s.benefit}<br><b style="color:var(--accent)">How:</b> ${s.how}</p></div>`).join('');
+</script>
+</body>
+</html>

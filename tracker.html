@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Tracker Guide — NyayClock</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<nav class="nav">
+  <a class="brand" href="index.html">⚖️ Nyay<span>Clock</span></a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="predictor.html">Timeline Predictor</a>
+    <a href="courts.html">Court Explorer</a>
+    <a href="forums.html">Forum Comparison</a>
+    <a href="tracker.html">Case Tracker Guide</a>
+    <a href="rights.html">Know Your Rights</a>
+    <a href="aid.html" data-i18n="nav.aid">Free Legal Aid & Schemes</a>
+    <a href="about.html">Data & Method</a>
+  </div>
+</nav>
+
+<div class="page">
+  <h1>Track Your Case Like a Pro</h1>
+  <p class="lead">Every case filed in India's eCourts system gets a 16-character CNR number. With it (or even without it), you can track everything yourself — for free.</p>
+
+  <div class="panel-box">
+    <h2>What Is a CNR Number?</h2>
+    <p style="font-size:.92rem;color:var(--muted);line-height:1.8">A <b style="color:var(--text)">Case Number Record (CNR)</b> is a unique 16-digit alphanumeric ID (e.g., <span style="font-family:monospace;color:var(--accent)">DLCT010012342019</span>) assigned to every case. It appears on your case filing receipt, summons, and every court order. If you've lost it, you can search by party name, advocate name, FIR number, or case type + year + court.</p>
+  </div>
+
+  <div class="panel-box steps">
+    <h2>How To Track Your Case — Step by Step</h2>
+    <div class="step"><h4>Go to the official eCourts portal</h4><p>Visit <b>services.ecourts.gov.in</b> — this is the government's free official service. Beware of paid lookalike sites.</p></div>
+    <div class="step"><h4>Choose "Case Status"</h4><p>Enter your CNR number, or use "Case Number" / "Party Name" search if you don't have it. Party-name search needs your state, district and court complex.</p></div>
+    <div class="step"><h4>Read the case status screen</h4><p>You'll see: filing date, registration date, first hearing, next hearing date, stage of case, judge name, and every order passed. Use our status decoder below.</p></div>
+    <div class="step"><h4>Download orders & judgments</h4><p>Every order PDF is free to download from the same screen. Keep copies — they're needed for appeals and execution.</p></div>
+    <div class="step"><h4>Set up your own reminders</h4><p>eCourts offers SMS/email updates via its "Case Status" app (Play Store/App Store, official eCommittee SC app). Enable notifications so you never miss a hearing.</p></div>
+    <div class="step"><h4>Watch for excessive gaps</h4><p>If no hearing is listed for 6+ months, or dates are deferred repeatedly without progress, that's when you escalate — see Know Your Rights.</p></div>
+  </div>
+
+  <div class="panel-box">
+    <h2>Cryptic Status Decoder</h2>
+    <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem">eCourts statuses are written for lawyers. Here's what common ones actually mean:</p>
+    <div id="decoder"></div>
+  </div>
+
+  <div class="panel-box">
+    <h2>Quick Links (Official & Free)</h2>
+    <div class="alt-item"><span>eCourts Services Portal (case status, cause lists, orders)</span><a href="https://services.ecourts.gov.in" target="_blank" rel="noopener" style="color:var(--accent)">services.ecourts.gov.in ↗</a></div>
+    <div class="alt-item"><span>National Judicial Data Grid (court statistics)</span><a href="https://njdg.ecourts.gov.in" target="_blank" rel="noopener" style="color:var(--accent)">njdg.ecourts.gov.in ↗</a></div>
+    <div class="alt-item"><span>eCourts mobile app (official)</span><span style="color:var(--muted)">Play Store / App Store — search "eCourts Services"</span></div>
+    <div class="alt-item"><span>NALSA free legal aid (if you can't afford a lawyer)</span><a href="https://nalsa.gov.in" target="_blank" rel="noopener" style="color:var(--accent)">nalsa.gov.in ↗</a></div>
+  </div>
+</div>
+
+<footer>
+  <div>NyayClock — built on public data from NJDG, data.gov.in & Department of Justice.</div>
+  <div class="disclaimer">Statistical estimates, not legal advice.</div>
+</footer>
+
+<script src="data/courts.js"></script>
+<script src="assets/i18n.js"></script>
+<script src="assets/app.js"></script>
+<script>
+const STATUSES = [
+['"Listed for framing of charge"','The court will formally read the accusations to the accused. Early stage of criminal trial — expect many more hearings.'],
+['"Evidence of PW-1 recorded"','Prosecution Witness 1 testified. Criminal trials record witnesses one by one — long cases have dozens. Track the witness count to estimate remaining time.'],
+['"Listed for final arguments"','Good news — evidence is done. Lawyers present summaries next. Disposal typically follows within months.'],
+['"Judgment reserved"','The judge has heard everything and will announce the decision on a future date. Usually weeks, occasionally months.'],
+['"Disposed off as settled"','The case ended via settlement (often Lok Adalat). Get the settlement terms in writing from the order.'],
+['"Ex-parte proceedings"','The other side stopped appearing. Court can decide based on your evidence alone — but they can also apply to rejoin later.'],
+['"Transferred to another court"','Your case moved (judge transfer, jurisdiction change). Note the new court number and re-track there.'],
+['"Undated"','The case has NO next hearing scheduled — a red flag affecting lakhs of cases. This is exactly when to escalate with the delay remedies in Know Your Rights.'],
+];
+document.getElementById('decoder').innerHTML = STATUSES.map(s=>`
+<div style="padding:.75rem 0;border-bottom:1px dashed var(--border)">
+<div style="font-family:monospace;color:var(--accent);font-size:.88rem">${s[0]}</div>
+<div style="color:var(--muted);font-size:.86rem;margin-top:.25rem">${s[1]}</div>
+</div>`).join('');
+</script>
+</body>
+</html>

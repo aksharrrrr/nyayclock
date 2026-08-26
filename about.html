@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data & Methodology — NyayClock</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<nav class="nav">
+  <a class="brand" href="index.html">⚖️ Nyay<span>Clock</span></a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="predictor.html">Timeline Predictor</a>
+    <a href="courts.html">Court Explorer</a>
+    <a href="forums.html">Forum Comparison</a>
+    <a href="tracker.html">Case Tracker Guide</a>
+    <a href="rights.html">Know Your Rights</a>
+    <a href="aid.html" data-i18n="nav.aid">Free Legal Aid & Schemes</a>
+    <a href="about.html">Data & Method</a>
+  </div>
+</nav>
+
+<div class="page">
+  <h1>Our Data & Methodology</h1>
+  <p class="lead">Every number on NyayClock traces to a public government source. Here's exactly what we use and where we can be wrong.</p>
+
+  <div class="panel-box">
+    <h2>Data Freshness Policy</h2>
+    <p style="font-size:.92rem;color:var(--muted);line-height:1.85">
+      We never show an unlabeled number. Every statistic carries one of three badges:<br><br>
+      <span style="color:#10b981;font-weight:700">● LIVE</span> — fetched directly from NJDG's public dashboard at page load. If the government site is reachable, pending counts are real-time.<br>
+      <span style="color:#f59e0b;font-weight:700">● SNAPSHOT · N days old</span> — NJDG was unreachable (government sites have downtime); we serve our last verified crawl and state its age.<br>
+      <span style="color:#f59e0b;font-weight:700">● OFFICIAL SNAPSHOT · date</span> — datasets like state-wise pendency are published periodically by data.gov.in; we show the official reference date, never pretend they're live.<br><br>
+      Monthly instituted/disposed figures come from the NJDG dashboard's own monthly counters and update as NJDG updates them.
+    </p>
+  </div>
+
+  <div class="panel-box">
+    <h2>Sources (All Free & Public)</h2>
+    <div class="table-wrap"><table class="data">
+      <tr><th>Source</th><th>What We Use It For</th><th>Access</th></tr>
+      <tr><td>NJDG v3 — njdg.ecourts.gov.in</td><td>National pending counts, age distribution of cases, monthly instituted/disposed figures</td><td>Live dashboard (public)</td></tr>
+      <tr><td>data.gov.in — District Court pendency (Dec 2023)</td><td>State-wise district court pendency table</td><td>Free CSV/API</td></tr>
+      <tr><td>data.gov.in — High Court pendency (Dec 2022)</td><td>High Court comparison table</td><td>Free CSV/API</td></tr>
+      <tr><td>Department of Justice annual reports</td><td>Disposal-rate patterns by case category</td><td>Free PDFs at dop.nic.in / doj.gov.in</td></tr>
+      <tr><td>Daksh access-to-justice surveys</td><td>Sanity-checking modeled medians against litigant-reported realities</td><td>Published research</td></tr>
+      <tr><td>NCDRC / CONFONET statistics</td><td>Consumer commission timelines in forum comparison</td><td>Public dashboards</td></tr>
+      <tr><td>NALSA Lok Adalat reports</td><td>Settlement-forum timelines</td><td>Free publications</td></tr>
+    </table></div>
+  </div>
+
+  <div class="panel-box">
+    <h2>How The Predictor Works</h2>
+    <p style="font-size:.92rem;color:var(--muted);line-height:1.85">
+      For each case type we model three numbers: median disposal time, the 25th percentile ("fastest quarter") and 75th percentile ("slowest quarter"). These are anchored on NJDG case-age distributions — e.g., if 41% of pending cheque-bounce cases are over 3 years old, the median cannot plausibly be under ~3 years — cross-checked against DoJ disposal studies and Daksh's litigant surveys. Forum multipliers (commercial courts ≈ 40% faster; High Courts ≈ 35% slower) follow published comparative studies.
+    </p>
+  </div>
+
+  <div class="panel-box">
+    <h2>Honest Limitations</h2>
+    <p style="font-size:.92rem;color:var(--muted);line-height:1.85">
+      ① <b>Past ≠ future.</b> We assume historical disposal patterns continue. Infrastructure changes (new courts, fast-track schemes) can shift them.<br>
+      ② <b>Medians hide variance.</b> Two identical-looking cases can take wildly different paths based on evidence volume, witness availability and judge workload. That's why we show ranges.<br>
+      ③ <b>Data lag.</b> NJDG updates near-real-time but data.gov.in tables are snapshots (Dec 2022/2023). We label every table with its reference date.<br>
+      ④ <b>No case-level prediction.</b> We cannot see your specific case file. Complexity, cooperation of parties and local court conditions all matter beyond any statistical model.<br>
+      ⑤ <b>State variation is real.</b> A "median" nationally can be double or half in your specific district. Our district-level refinement is on the roadmap as NJDG district feeds are parsed.
+    </p>
+  </div>
+
+  <div class="panel-box">
+    <h2>License & Attribution</h2>
+    <p style="font-size:.92rem;color:var(--muted);line-height:1.85">
+      Government data used under the <b>Government Open Data License – India (GODL)</b>. NyayClock is free, requires no sign-up, stores no personal data, and runs entirely as static pages. Source code and data files ship alongside the site for verification.
+    </p>
+  </div>
+
+  <div class="note-box">
+    <b>The one-line summary:</b> We convert India's own judicial statistics into expectation-setting tools for the people who live inside those statistics — while telling you exactly where the numbers end and uncertainty begins.
+  </div>
+</div>
+
+<footer>
+  <div>NyayClock — built on public data from NJDG, data.gov.in & Department of Justice.</div>
+  <div class="disclaimer">Statistical estimates, not legal advice.</div>
+</footer>
+
+<script src="data/courts.js"></script>
+<script src="assets/i18n.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

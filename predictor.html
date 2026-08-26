@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Timeline Predictor — NyayClock</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<nav class="nav">
+  <a class="brand" href="index.html">⚖️ Nyay<span>Clock</span></a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="predictor.html">Timeline Predictor</a>
+    <a href="courts.html">Court Explorer</a>
+    <a href="forums.html">Forum Comparison</a>
+    <a href="tracker.html">Case Tracker Guide</a>
+    <a href="rights.html">Know Your Rights</a>
+    <a href="aid.html" data-i18n="nav.aid">Free Legal Aid & Schemes</a>
+    <a href="about.html">Data & Method</a>
+  </div>
+</nav>
+
+<div class="page">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.8rem">
+    <div>
+      <h1 id="pgTitle">Timeline Predictor</h1>
+      <p class="lead" id="pgLead">Select your case type and court. We model expected timelines from NJDG case-age distributions and Department of Justice disposal studies.</p>
+    </div>
+  </div>
+
+  <div class="panel-box">
+    <h2>Your Case</h2>
+    <label id="lblType">CASE TYPE</label>
+    <select id="ctype"></select>
+    <div style="margin:.5rem 0 .2rem">
+      <input type="text" id="freeSearch" placeholder='Or type freely — e.g. "neighbour encroachment"…' style="font-size:.85rem">
+      <div id="searchHint" style="font-size:.75rem;color:var(--accent2);margin-top:.35rem;display:none"></div>
+    </div>
+    <label>COURT / FORUM</label>
+    <select id="court"></select>
+    <label>CASE VALUE (if money dispute — improves estimate)</label>
+    <input type="number" id="value" placeholder="e.g. 500000 (₹)" min="0">
+    <button class="go" onclick="predict()">PREDICT MY TIMELINE →</button>
+  </div>
+
+  <div class="panel-box" id="result" style="display:none">
+    <h2>Prediction Result</h2>
+    <div class="result-big"><b id="rMedian">—</b><span>MEDIAN TIME TO FINAL DISPOSAL</span></div>
+    <div id="rRanges"></div>
+    <div class="note-box" id="rNote"></div>
+  </div>
+
+  <div class="panel-box" id="alts" style="display:none">
+    <h2>Faster Alternatives For Your Dispute</h2>
+    <div id="rAlts"></div>
+  </div>
+
+  <div class="note-box">
+    <b>How to read this:</b> The median means half of comparable cases finish faster, half slower. The P75 figure is the "plan for this" number — if your case might be contested, budget for it. Estimates derive from historical disposal patterns and cannot account for your case's specific complexity.
+  </div>
+</div>
+
+<footer>
+  <div>NyayClock — built on public data from NJDG, data.gov.in & Department of Justice.</div>
+  <div class="disclaimer">Statistical estimates, not legal advice.</div>
+</footer>
+
+<script src="data/courts.js"></script>
+<script src="assets/live.js"></script>
+<script src="assets/i18n.js"></script>
+<script src="assets/app.js"></script>
+<script>
+// Theme toggle is global (app.js). Language state LANG comes from app.js too.
+
+// ---- Language ----
+const ctypeSel = document.getElementById('ctype');
+
+function caseTypeLabel(key){ return LANG==='hi' && CASE_TYPE_HI[key] ? CASE_TYPE_HI[key] : key; }
+
+function fillCaseTypes(){
+  const prev = ctypeSel.value;
+  ctypeSel.innerHTML = '';
+  Object.keys(CASE_TYPE_MODELS).forEach(k => {
+    const o = document.createElement('option'); o.value = k; o.textContent = caseTypeLabel(k); ctypeSel.appendChild(o);
+  });
+  if(prev && CASE_TYPE_MODELS[prev]) ctypeSel.value = prev;
+}
+
+// Free-text search: match user words against keyword map
+function searchCaseTypes(query){
+  if(!query || query.trim().length < 3) return null;
+  const q = query.toLowerCase();
+  const scores = {};
+  for(const [type, keywords] of Object.entries(CASE_TYPE_KEYWORDS)){
+    let score = 0;
+    for(const kw of keywords){
+      if(q.includes(kw)) score += kw.length; // longer matches weigh more
+      else if(kw.length > 4 && q.split(/\s+/).some(w => w.length>3 && (kw.includes(w) || w.includes(kw)))) score += 2;
+    }
+    // also match against the type name itself
+    if(caseTypeLabel(type).toLowerCase().includes(q)) score += 10;
+    if(score > 0) scores[type] = score;
+  }
+  return Object.entries(scores).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>e[0]);
+}
+
+const courts = ['District & Sessions Court','Commercial Court (if eligible)','High Court'];
+const courtSel = document.getElementById('court');
+courts.forEach(c => { const o = document.createElement('option'); o.textContent = c; courtSel.appendChild(o); });
+
+function applyLang(){
+  const t = I18N[LANG];
+  document.getElementById('pgTitle').textContent = t['pred.h1'];
+  document.getElementById('pgLead').textContent = t['pred.lead'];
+  const labels = document.querySelectorAll('.panel-box label');
+  if(labels[0]) labels[0].textContent = t['pred.caseType'];
+  if(labels[1]) labels[1].textContent = t['pred.court'];
+  if(labels[2]) labels[2].textContent = t['pred.value'];
+  document.querySelector('button.go').textContent = t['pred.go'];
+  document.getElementById('freeSearch').placeholder = t['pred.searchPlaceholder'];
+  fillCaseTypes();
+  if(document.getElementById('result').style.display === 'block') predict(true);
+  localStorage.setItem('nyay-lang', LANG);
+}
+// The global langSel (injected by app.js) reloads the page on change, so applyLang()
+// runs on load with the persisted LANG. No local listener needed.
+applyLang();
+
+// Free-text search wiring
+const freeSearch = document.getElementById('freeSearch');
+freeSearch.addEventListener('input', () => {
+  const matches = searchCaseTypes(freeSearch.value);
+  const hint = document.getElementById('searchHint');
+  if(matches && matches.length){
+    ctypeSel.value = matches[0];
+    hint.style.display = 'block';
+    hint.textContent = '→ ' + (LANG==='hi' ? 'मैच हुआ: ' : 'Matched: ') + caseTypeLabel(matches[0]) +
+      (matches.length > 1 ? ` (${LANG==='hi'?'अन्य':'also'}: ${matches.slice(1).map(caseTypeLabel).join(', ')})` : '');
+  } else if(freeSearch.value.trim().length >= 3){
+    hint.style.display = 'block';
+    hint.textContent = I18N[LANG]['pred.searchNoMatch'];
+  } else {
+    hint.style.display = 'none';
+  }
+});
+
+function yrWord(y){ return y >= 1 ? I18N[LANG]['pred.yrs'] : I18N[LANG]['pred.yr']; }
+
+function predict(silent){
+  const ct = ctypeSel.value;
+  const m = CASE_TYPE_MODELS[ct];
+  const court = courtSel.value;
+  const val = +document.getElementById('value').value || 0;
+
+  let median = m.median, p25 = m.p25, p75 = m.p75;
+  if(court.startsWith('Commercial') && val >= 300000){ median *= .62; p25 *= .62; p75 *= .62; }
+  else if(court.startsWith('Commercial')){ median = m.median * .85; }
+  if(court === 'High Court'){ median *= 1.35; p25 *= 1.3; p75 *= 1.4; }
+
+  const t = I18N[LANG];
+  document.getElementById('rMedian').textContent = '≈ ' + median.toFixed(1) + ' ' + yrWord(median);
+  document.querySelector('#result h2').textContent = t['pred.result'];
+  document.querySelector('.result-big span').textContent = t['pred.medianLabel'];
+  const maxW = Math.max(p75, median*1.1);
+  document.getElementById('rRanges').innerHTML = `
+    <div class="range-row"><span>${t['pred.fast']}</span><div class="range-track"><div class="range-fill" data-w="${p25/maxW*100}" style="background:var(--good)"></div></div><span>${p25.toFixed(1)} ${yrWord(p25)}</span></div>
+    <div class="range-row"><span>${t['pred.med']}</span><div class="range-track"><div class="range-fill" data-w="${median/maxW*100}" style="background:var(--accent)"></div></div><span>${median.toFixed(1)} ${yrWord(median)}</span></div>
+    <div class="range-row"><span>${t['pred.slow']}</span><div class="range-track"><div class="range-fill" data-w="${Math.min(100,p75/maxW*100)}" style="background:var(--bad)"></div></div><span>${p75.toFixed(1)} ${yrWord(p75)}</span></div>`;
+  setTimeout(()=>document.querySelectorAll('#rRanges .range-fill').forEach(f=>f.style.width=f.dataset.w+'%'),80);
+
+  document.getElementById('rNote').innerHTML = '<b>' + t['pred.about'] + '</b> ' + m.note;
+
+  const altsDiv = document.getElementById('rAlts');
+  altsDiv.innerHTML = m.alternatives.map(a=>`<div class="alt-item"><span>${a[0]}</span><b>${a[1]}</b></div>`).join('');
+  if(val >= 300000 && !court.startsWith('Commercial')){
+    altsDiv.innerHTML += `<div class="alt-item"><span>💡 ${LANG==='hi' ? `Aapki rakam (₹${val.toLocaleString('en-IN')}) <b>Commercial Courts Act</b> ke under aati hai — ek fast-track forum.` : `Your dispute value (₹${val.toLocaleString('en-IN')}) qualifies for the <b>Commercial Courts Act</b> — a dedicated fast-track forum.`}</span><button class="go" style="width:auto;margin:0;padding:.5rem 1.2rem;font-size:.8rem" onclick="document.getElementById('court').value='Commercial Court (if eligible)';predict();window.scrollTo({top:0,behavior:'smooth'})">${LANG==='hi'?'Commercial mein dobara →':'Re-run as commercial →'}</button></div>`;
+  }
+  document.getElementById('result').style.display = 'block';
+  document.getElementById('alts').style.display = 'block';
+  if(!silent) document.getElementById('result').scrollIntoView({behavior:'smooth'});
+}
+</script>
+</body>
+</html>

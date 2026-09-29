@@ -1,7 +1,7 @@
 {
-  "civilPending": 11223315,
-  "criminalPending": 40917175,
-  "totalPending": 52140490,
-  "fetchedAt": "2026-09-28T08:16:12.950Z",
+  "civilPending": 11222713,
+  "criminalPending": 40935352,
+  "totalPending": 52158065,
+  "fetchedAt": "2026-09-29T07:55:21.270Z",
   "source": "njdg.ecourts.gov.in/njdg_v3 (server-rendered HTML)"
 }
